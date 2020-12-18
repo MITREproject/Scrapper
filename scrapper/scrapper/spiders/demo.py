@@ -1,30 +1,42 @@
 import scrapy
 from scrapy.http import Request
-
+from scrapy.selector import Selector
+from scrapper.items import ScrapperItem
 
 class SanetSpider(scrapy.Spider):
     name = 'demo'
-    allowed_domains = ['sanet.st']
+   
     start_urls = ['https://attack.mitre.org/']
 # tr/td/table/tbody/tr/td
     def parse(self, response):
-        #for row in response.xpath('//[@class="matrix side"]//td//tr/table/tbody/'):
-         for row in response.xpath('//[@class="matrix side"]//thead/tr/'):
+       
+       
+        #  item=ScrapperItem()
+        #  rows=Selector(response).xpath("//td[@class = 'tactic name']").css('a::text').extract()
+        #  item['tactics']=rows
+        #  yield item
+        # rows=Selector(response).xpath('//*[@id="layouts-content"]/div[1]/div/div/div[2]/table/thead')
+        # for row in rows:
+        #     item=ScrapperItem()
+        #     item['tactic_name']=row.xpath('tr/td[@class="tactic name"]/a/text()').extract()
+        #     item['count']=row.xpath('tr/td[@class="tactic count"]/text()').extract()
+        #     yield item
+        
+        # cols=Selector(response).xpath('//*[@id="layouts-content"]/div[1]/div/div/div[2]/table/tbody/tr/td[1]/table/tbody/tr[1]')
+        # for col in cols:
+        #     item=ScrapperItem()
+        #     item['technique']=cols.xpath('td[1]/table/tbody/tr/td/div[@class="technique-cell supertechniquecell"]/a/text()').extract()
+        #     yield item
 
-            yield {
-                # Do something.
-                
-               'tactic':row.xpath('td/a/text()').extract_first()
-                
-            }
+         item=ScrapperItem()
+         item['technique_with_sub']=Selector(response).xpath("//div[@class = 'technique-cell  supertechniquecell']").css('a::text').extract()
+         item['technique_sub']=Selector(response).xpath("//div[@class='subtechnique']/div[@class = 'technique-cell ']").css('a::text').extract()
+         item['technique_sub_id']=Selector(response).xpath("//div[@class='subtechnique']/div[@class = 'technique-cell ']").css('a::title data-original-title').extract()
+         item['technique_without_sub']=Selector(response).xpath("//tr[@class='technique-row']/td/div[@class = 'technique-cell ']").css('a::text').extract()
+         item['tactic_name']=Selector(response).xpath("//td[@class = 'tactic name']").css('a::text').extract()
+         item['count']=Selector(response).xpath("//td[@class = 'tactic count']/text()").extract()
+         item['tech_sub_count']=Selector(response).xpath("//div[@class = 'technique-cell  supertechniquecell']/a").css('sub::text').extract()
+         yield item
 
-        # # next_page = /page-{}/ where {} number of page.
-        # next_page = response.xpath('//div[@class="technique-cell supertechniquecell"]/@href').extract_first()
 
-        # # next_page = https://sanet.st/page-{}/ where {} number of page.
-        # next_page = response.urljoin(next_page)
-
-        # # If next_page have value
-        # if next_page:
-        #     # Recall parse with url https://sanet.st/page-{}/ where {} number of page.
-        #     yield scrapy.Request(url=next_page, callback=self.parse)
+       
