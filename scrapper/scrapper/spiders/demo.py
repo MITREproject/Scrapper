@@ -27,16 +27,19 @@ class SanetSpider(scrapy.Spider):
         #     item=ScrapperItem()
         #     item['technique']=cols.xpath('td[1]/table/tbody/tr/td/div[@class="technique-cell supertechniquecell"]/a/text()').extract()
         #     yield item
-
-         item=ScrapperItem()
-         item['technique_with_sub']=Selector(response).xpath("//div[@class = 'technique-cell  supertechniquecell']").css('a::text').extract()
-         item['technique_sub']=Selector(response).xpath("//div[@class='subtechnique']/div[@class = 'technique-cell ']").css('a::text').extract()
-         item['technique_sub_id']=Selector(response).xpath("//div[@class='subtechnique']/div[@class = 'technique-cell ']").css('a::title data-original-title').extract()
-         item['technique_without_sub']=Selector(response).xpath("//tr[@class='technique-row']/td/div[@class = 'technique-cell ']").css('a::text').extract()
-         item['tactic_name']=Selector(response).xpath("//td[@class = 'tactic name']").css('a::text').extract()
-         item['count']=Selector(response).xpath("//td[@class = 'tactic count']/text()").extract()
-         item['tech_sub_count']=Selector(response).xpath("//div[@class = 'technique-cell  supertechniquecell']/a").css('sub::text').extract()
-         yield item
+        technique_with_sub
+        technique_sub
+        technique_without_sub
+        tactic_name
+        item=ScrapperItem()
+        item['technique_with_sub']=response.xpath("//div[@class = 'technique-cell  supertechniquecell']").css('a::text').extract()
+        item['technique_sub']=response.xpath("//div[@class='subtechnique']/div[@class = 'technique-cell ']").css('a::text').extract()
+        # item['technique_sub_id']=Selector(response).xpath("//div[@class='subtechnique']/div[@class = 'technique-cell ']").css('a::title data-original-title').extract()
+        item['technique_without_sub']=response.xpath("//tr[@class='technique-row']/td/div[@class = 'technique-cell ']").css('a::text').extract()
+        item['tactic_name']=response.xpath("//td[@class = 'tactic name']").css('a::text').extract()
+        item['count']=response.xpath("//td[@class = 'tactic count']/text()").extract()
+        item['tech_sub_count']=response.xpath("//div[@class = 'technique-cell  supertechniquecell']/a").css('sub::text').extract()
+        yield item
 
 
        

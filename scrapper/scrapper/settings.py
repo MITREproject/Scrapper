@@ -63,12 +63,14 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
+   'scrapper.pipelines.Scrap1Pipeline': 200,
    'scrapper.pipelines.ScrapperPipeline': 300,
+
 }
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
 MONGODB_DB = "mitre"
-MONGODB_COLLECTION = "technique_count"
+MONGODB_COLLECTION = "technique"
 
 
 # Enable and configure the AutoThrottle extension (disabled by default)

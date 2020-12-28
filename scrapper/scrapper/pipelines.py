@@ -18,7 +18,20 @@ class ScrapperPipeline:
 			27017
 		)
 		db = self.conn['mitre']
-		self.collection = db['technique']
+		self.collection = db['info2']
+        
+	def process_item(self, item, spider):
+		self.collection.insert(dict(item))
+		return item
+
+class Scrap1Pipeline:
+	def __init__(self):
+		self.conn = pymongo.MongoClient(
+			'localhost',
+			27017
+		)
+		db = self.conn['mitre']
+		self.collection = db['info']
         
 	def process_item(self, item, spider):
 		self.collection.insert(dict(item))
