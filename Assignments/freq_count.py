@@ -9,25 +9,20 @@
 
 import collections
 
-words = []
-#accepting user input
-size = int(input("How many elements do you want to enter? "))
-for i in range(1, size+1):
-	words.append(str(input("Enter element " + str(i) + " ")))
+words = ["hello", "hi", "hello", "good", "bad", "good"]
 unique = []
 
 #using built in library
 counter = collections.Counter(words)
-print("---------------------------------------")
 print("Method 1")
 print(counter)
-print("---------------------------------------")
+print()
 print("Method 2")
 
 #manual method
 for word in words:
 	if word not in unique:
-		unique.append(word) #finding all the unique words
+		unique.append(word)
 
 for word in unique:
 	print(word, " : ", words.count(word))

@@ -18,7 +18,8 @@ class MetricsSpider(scrapy.Spider):
 		# items['tactic_name'] = tactics
 		# yield items
 
-		url = response.css('div.technique-cell a::attr(href)').extract()
+		#url = response.css('div.technique-cell a::attr(href)').extract()
+		url = response.css('table.techniques-table a::attr(href)').extract()
 		for item in url:
 			yield response.follow(item, callback = self.parse_dir_contents)
 
