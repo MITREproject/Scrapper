@@ -9,4 +9,15 @@ import scrapy
 class MitreItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    tactic_name = scrapy.Field()
+    #tactic_name = scrapy.Field()
+    id = scrapy.Field()
+    sub_technique = scrapy.Field()
+    tactic = scrapy.Field()
+    platform = scrapy.Field()
+    technique_name = scrapy.Field()
+    data_sources = scrapy.Field()
+    version = scrapy.Field()
+    created = scrapy.Field()
+    last_modified = scrapy.Field()
+
+
