@@ -3,21 +3,16 @@
 # See documentation in:
 # https://docs.scrapy.org/en/latest/topics/items.html
 
-import scrapy
+from scrapy import Item, Field
+from collections import OrderedDict
+
+class MitreItem(Item):
+    #item which has dynamic fields
+    #creating dynamic pipeline
+    def __setitem__(self, key, value):
+        self._values[key] = value
+        self.fields[key] = {}
 
 
-class MitreItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()
-    #tactic_name = scrapy.Field()
-    id = scrapy.Field()
-    sub_technique = scrapy.Field()
-    tactic = scrapy.Field()
-    platform = scrapy.Field()
-    technique_name = scrapy.Field()
-    data_sources = scrapy.Field()
-    version = scrapy.Field()
-    created = scrapy.Field()
-    last_modified = scrapy.Field()
 
 

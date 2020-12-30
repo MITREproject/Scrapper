@@ -23,7 +23,3 @@ class MitrePipeline:
 		self.collection.insert(dict(item))
 		return item
 
-    # def process_item(self, item, spider):
-    # 	self.collection.insert(dict(item))
-    # 	return item
-        

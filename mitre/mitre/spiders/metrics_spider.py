@@ -10,47 +10,70 @@ class MetricsSpider(scrapy.Spider):
 	]
 
 	def parse(self, response):
-		#title = response.css('title::text').extract()
-		#yield {'titletext' : title}
-		# items = MitreItem() #creating object of MitreItem class
-		# tactics = response.xpath("//td[@class = 'tactic name']").css('a::text').extract()
-		# #yield {'Tactics' : tactics}
-		# items['tactic_name'] = tactics
-		# yield items
-
-		#url = response.css('div.technique-cell a::attr(href)').extract()
 		url = response.css('table.techniques-table a::attr(href)').extract()
 		for item in url:
 			yield response.follow(item, callback = self.parse_dir_contents)
 
 	def parse_dir_contents(self, response):
-	    other = response.xpath("//div[@class = 'card-data']/text()").extract()
-	    id = response.css('[id="card-id"]::text').extract()
-	    sub_technique = response.xpath("//div[@class = 'card-data']//a/text()").extract()
-	    tactic = response.css('[id="card-tactics"]::text').extract()
-	    platform = response.css('[id="card-platforms"]::text').extract()
-	    technique_name = response.css('h1::text').extract()
 
-	    tactic = "".join(tactic)
-	    tactic = tactic.replace(" ", "")
-	    tactic = tactic.replace("\n", "")
+	    other = response.xpath("//div[@class = 'card-data']/text()").extract() #holds values of card details
+	    key = response.xpath("//span[@class = 'h5 card-title']/text()").extract() #holds keys of card details
+	    sub_technique = response.xpath("//div[@class = 'card-data']//a/text()").extract() #holds sub-technique id's and CAPEC id's
+	    technique_name = response.css('h1::text').extract() #holds technique names
+	    capec = [] #seperate CAPEC id's from sub_technique
+	    dict1 = {} #to be used as dynamic item
+	    idx = 0 #position of tag 'CAPEC ID' in key
+	    
+	    #remove leading and trailing spaces from technique name and remove unwanted symbols
 	    technique_name = "".join(technique_name)
-	    technique_name = technique_name.replace(" ", "")
+	    technique_name = technique_name.strip()
 	    technique_name = technique_name.replace("\n", "")
 
-	    items = MitreItem() #creating object of MitreItem class
-	    items['id'] = "".join(id[0])
-	    items['sub_technique'] = sub_technique
-	    items['tactic'] = tactic
-	    items['platform'] = "".join(platform[0])
-	    items['technique_name'] = technique_name
-	    items['data_sources'] = other[-4]
-	    items['version'] = other[-3]
-	    items['created'] = other[-2]
-	    items['last_modified'] = other[-1]
-	    yield items
+	    #initializing technique name
+	    dict1['Technique Name'] = technique_name
 
-	    #yield {'Technique' : technique_name, 'Id' : id, 'Sub Techniques' : sub_technique, 'Tactic' : tactic, 'Platform' : platform, 'Data Sources' : other[-4], 'Version' : other[-3], 'Created' : other[-2], 'Last Modified' : other[-1]}
+	    #formatting the keys. Removing trailing spaces and colon
+	    for i in range(len(key)):
+	    	key[i] = key[i].strip()
+	    	key[i] = key[i][:-1]
+	    	if key[i] == 'CAPEC ID':
+	    		idx = i
+
+	    #formatting the values.Removing unwanted elements
+	    for i in range(len(other)):
+	    	other[i] = other[i].strip()
+	    	if "\n" in other[i]:
+	    		other.remove(other[i])
+
+	    #eliminating blank elements in values
+	    for elem in other[:]:
+	    	if len(elem) <= 1:
+	    		other.remove(elem)
+	    
+	    #seperating CAPEC id's from sub-technique id's
+	    for elem in sub_technique[:]:
+	    	if "CAPEC" in elem:
+	    		capec.append(elem)
+	    		sub_technique.remove(elem)
+
+	    #initializing sub-technique id's
+	    if len(sub_technique) == 1:
+	    	other.insert(1, sub_technique[0])
+	    if len(sub_technique) > 1:
+	    	other.insert(1, sub_technique)
+
+	    #initializing capec id's
+	    if len(capec) == 1:
+	    	other.insert(idx, capec[0])
+	    if idx != 0 and len(capec) > 1: 
+	    	other.insert(idx, capec) 
+
+	    #initializing other attributes
+	    for i in range(len(key)):
+	    	dict1[key[i]] = other[i] 
+
+	    #returning the created dictionary
+	    yield MitreItem( **dict1 )
 
 
 
