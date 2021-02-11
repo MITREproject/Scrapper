@@ -23,7 +23,17 @@ class MetricsSpider(scrapy.Spider):
 	    capec = [] #seperate CAPEC id's from sub_technique
 	    dict1 = {} #to be used as dynamic item
 	    idx = 0 #position of tag 'CAPEC ID' in key
-	    
+
+	    detection=response.xpath("//div[@class = 'container-fluid']/div/p/text()").extract()
+	    description=response.xpath("//div[@class = 'description-body']/p/text()").extract()
+	    mitigation=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//a/text()").extract()
+	    miti_descri=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//p/text()").extract()
+	
+		#detection=response.xpath("//div[@class = 'container-fluid']/div/p/text()").extract()
+		#description=response.xpath("//div[@class = 'description-body']/p/text()").extract()
+		#mitigation=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//a/text()").extract()
+		#miti_descri=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//p/text()").extract()
+
 	    #remove leading and trailing spaces from technique name and remove unwanted symbols
 	    technique_name = "".join(technique_name)
 	    technique_name = technique_name.strip()
@@ -31,6 +41,10 @@ class MetricsSpider(scrapy.Spider):
 
 	    #initializing technique name
 	    dict1['Technique Name'] = technique_name
+	    dict1['Detection']=detection
+	    dict1['Description']=description
+	    dict1['Mitigation']=mitigation
+	    dict1['Mitigation_Description']=miti_descri
 
 	    #formatting the keys. Removing trailing spaces and colon
 	    for i in range(len(key)):
@@ -72,10 +86,7 @@ class MetricsSpider(scrapy.Spider):
 	    for i in range(len(key)):
 	    	dict1[key[i]] = other[i] 
 
+			
+
 	    #returning the created dictionary
-	    yield MitreItem( **dict1 )
-
-
-
-
-		
+	    yield MitreItem( **dict1 )		
