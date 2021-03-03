@@ -33,10 +33,10 @@ class MitreDesc(scrapy.Spider):
             h21=response.xpath("//div[@class = 'container-fluid']/h2/text()").extract_first()
             print(h21)
             if(h21=="Mitigations"):
-                mitigation=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2'][1]//a/text()"+"|"+"//table[@class = 'table table-bordered table-alternate mt-2'][1]//p/text()").extract()
+                mitigation=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//a/text()"+"|"+"//table[@class = 'table table-bordered table-alternate mt-2']//p/text()").extract()
                 dict1['Mitigation']=mitigation
             elif(h21=="Procedure Examples"):
-                proc_example=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2'][0]//a/text()"+"|"+"//table[@class = 'table table-bordered table-alternate mt-2'][0]//p/text()").extract()
+                proc_example=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//a/text()"+"|"+"//table[@class = 'table table-bordered table-alternate mt-2']//p/text()").extract()
                 mitigation=response.xpath("//div[@class = 'container-fluid']/p/text()").extract()
                 dict1['Mitigation']=mitigation
                 dict1['proc_example']=proc_example
