@@ -16,19 +16,39 @@ class MitreDesc(scrapy.Spider):
 		    yield response.follow(item, callback = self.parse_dir_contents)
     
     def parse_dir_contents(self, response):
+        dict1={}
         technique_name = response.css('h1::text').extract()
         detection=response.xpath("//div[@class = 'container-fluid']/div/p/text()").extract()
         description=response.xpath("//div[@class = 'description-body']/p/text()").extract()
-        mitigation=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//a/text()").extract()
-        miti_descri=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//p/text()").extract()
-        proc_example=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//td/p/text()").extract()
-        dict1={}
+        # mitigation=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//a/text()").extract()
+        # miti_descri=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//p/text()").extract()
+        # proc_example=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//td/p/text()").extract()
+        count=len(response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']").extract())
+        if(count==2):
+            proc_example=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2'][1]//a/text()"+"|"+"//table[@class = 'table table-bordered table-alternate mt-2'][1]//p/text()").extract()
+            mitigation=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2'][2]//a/text()"+"|"+"//table[@class = 'table table-bordered table-alternate mt-2'][2]//p/text()").extract()
+            dict1['proc_example']=proc_example
+            dict1['Mitigation']=mitigation
+        elif(count==1):
+            h21=response.xpath("//div[@class = 'container-fluid']/h2/text()").extract_first()
+            print(h21)
+            if(h21=="Mitigations"):
+                mitigation=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2'][1]//a/text()"+"|"+"//table[@class = 'table table-bordered table-alternate mt-2'][1]//p/text()").extract()
+                dict1['Mitigation']=mitigation
+            elif(h21=="Procedure Examples"):
+                proc_example=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2'][0]//a/text()"+"|"+"//table[@class = 'table table-bordered table-alternate mt-2'][0]//p/text()").extract()
+                mitigation=response.xpath("//div[@class = 'container-fluid']/p/text()").extract()
+                dict1['Mitigation']=mitigation
+                dict1['proc_example']=proc_example
+
+        
         
 
         dict1['Technique']=technique_name
         dict1['Description']=description
-        dict1['Mitigation']=mitigation
+        dict1['count']=count
+        
         dict1['Detection']=detection
-        dict1['Mitigation_Description']=miti_descri
-        dict1['proc_example']=proc_example
+        # dict1['Mitigation_Description']=miti_descri
+        
         yield MitreItem(**dict1)
