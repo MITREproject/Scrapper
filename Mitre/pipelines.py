@@ -15,7 +15,7 @@ class MitrePipeline(object):
 			27017
 		)
 	    db = self.conn['mitre']
-	    self.collection = db['tech_info1']
+	    self.collection = db['tech_desc']
 
     def process_item(self, item, spider):
 	    self.collection.insert(dict(item))
