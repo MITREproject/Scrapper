@@ -64,6 +64,7 @@ ROBOTSTXT_OBEY = True
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    'mitre.pipelines.MitrePipeline': 300,
+   #'mitre.pipelines.ElasticSearchPipeline':300
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
