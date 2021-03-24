@@ -48,9 +48,13 @@ class MetricsSpider(scrapy.Spider):
 		TechniqueData['Detection'] = detection
 		TechniqueData['Description'] = description
 		if Mitigations:
-			TechniqueData['Mitigations'] = Mitigations
+				TechniqueData['Mitigations'] = Mitigations
 		if ProcedureExamples:
 			TechniqueData['Procedure Examples'] = ProcedureExamples
+			
+			if not Mitigations:
+				TechniqueData['Mitigations']=response.xpath("//div[@class = 'container-fluid']/p[not(@scite-citeref-number)]/text()").extract()
+			
 
 		#remove leading and trailing spaces from technique name and remove unwanted symbols
 		techniqueName = "".join(techniqueName)
