@@ -26,8 +26,8 @@ class MitreDesc(scrapy.Spider):
         technique_name = response.css('h1::text').extract()
         processed=[]
         
-        detection=response.xpath("//div[@class = 'container-fluid']/div/p[not(@scite-citeref-number)]/text()")
-        description=response.xpath("//div[@class = 'description-body']/p[not(@scite-citeref-number)]/text()")
+        detection=response.xpath("//div[@class = 'container-fluid']/div/p/text()").extract()
+        description=response.xpath("//div[@class = 'description-body']/p[not(@scite-citeref-number)]/text()").extract()
         count=len(response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']").extract())
         if(count==2):
             # proc_example=scrapy.Request(response.url,callback=self.Process,meta="proc1")
