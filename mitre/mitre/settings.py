@@ -76,7 +76,6 @@ ELASTICSEARCH_PORT = 9200
 ELASTICSEARCH_INDEX = 'mitre'
 ELASTICSEARCH_TYPE = 'items'
 #ELASTICSEARCH_UNIQ_KEY = 'link'
-
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
 #AUTOTHROTTLE_ENABLED = True

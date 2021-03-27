@@ -6,7 +6,7 @@ from ..items import MitreItem
 class MetricsSpider(scrapy.Spider):
 	name = 'metrics'  #name of the spider
 	start_urls = [
-		'https://attack.mitre.org/'  #url which we want to scrap
+		'https://attack.mitre.org'  #url which we want to scrap
 	]
 
 	def parse(self, response):
@@ -16,77 +16,98 @@ class MetricsSpider(scrapy.Spider):
 
 	def parse_dir_contents(self, response):
 
-	    other = response.xpath("//div[@class = 'card-data']/text()").extract() #holds values of card details
-	    key = response.xpath("//span[@class = 'h5 card-title']/text()").extract() #holds keys of card details
-	    sub_technique = response.xpath("//div[@class = 'card-data']//a/text()").extract() #holds sub-technique id's and CAPEC id's
-	    technique_name = response.css('h1::text').extract() #holds technique names
-	    capec = [] #seperate CAPEC id's from sub_technique
-	    dict1 = {} #to be used as dynamic item
-	    idx = 0 #position of tag 'CAPEC ID' in key
+		cardValues = response.xpath("//div[@class = 'card-data']/text()").extract() #holds values of card details
+		cardKeys = response.xpath("//span[@class = 'h5 card-title']/text()").extract() #holds keys of card details
+		subTechnique = response.xpath("//div[@class = 'card-data']//a/text()").extract() #holds sub-technique id's and CAPEC id's
+		techniqueName = response.css('h1::text').extract() #holds technique names
+		capec = [] #seperate CAPEC id's from sub_technique
+		TechniqueData = {} #to be used as dynamic item
+		idx = 0 #position of tag 'CAPEC ID' in key
 
-	    detection=response.xpath("//div[@class = 'container-fluid']/div/p/text()").extract()
-	    description=response.xpath("//div[@class = 'description-body']/p/text()").extract()
-	    mitigation=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//a/text()").extract()
-	    miti_descri=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//p/text()").extract()
-	
-		#detection=response.xpath("//div[@class = 'container-fluid']/div/p/text()").extract()
-		#description=response.xpath("//div[@class = 'description-body']/p/text()").extract()
-		#mitigation=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//a/text()").extract()
-		#miti_descri=response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']//p/text()").extract()
+		detection = response.xpath("//div[@class = 'container-fluid']/div/p/text()").extract() 
+		description = response.xpath("//div[@class = 'description-body']/p/a/text()" + "|" 
+			+ "//div[@class = 'description-body']/p/text()").extract()	
+		description = "".join(description)
+		detection = "".join(detection)
+		Mitigations = {}
+		ProcedureExamples = {}		    
 
-	    #remove leading and trailing spaces from technique name and remove unwanted symbols
-	    technique_name = "".join(technique_name)
-	    technique_name = technique_name.strip()
-	    technique_name = technique_name.replace("\n", "")
+		tables = response.xpath("//table[@class = 'table table-bordered table-alternate mt-2']")
 
-	    #initializing technique name
-	    dict1['Technique Name'] = technique_name
-	    dict1['Detection']=detection
-	    dict1['Description']=description
-	    dict1['Mitigation']=mitigation
-	    dict1['Mitigation_Description']=miti_descri
+		for i in range(len(tables)):
+			type = tables[i].xpath('thead/tr/th/text()').extract_first()
+			for row in tables[i].xpath('tbody/tr'):
+				keys = row.xpath('td/a/text()')[0].extract()
+				values = row.xpath("td/p/text()" + "|" + "td/p/a/text()").extract()
+				values = "".join(values)
+				if type == "Name":
+					ProcedureExamples[keys.strip()] = values
+				elif type == "Mitigation":
+					Mitigations[keys.strip()] = values
 
-	    #formatting the keys. Removing trailing spaces and colon
-	    for i in range(len(key)):
-	    	key[i] = key[i].strip()
-	    	key[i] = key[i][:-1]
-	    	if key[i] == 'CAPEC ID':
-	    		idx = i
-
-	    #formatting the values.Removing unwanted elements
-	    for i in range(len(other)):
-	    	other[i] = other[i].strip()
-	    	if "\n" in other[i]:
-	    		other.remove(other[i])
-
-	    #eliminating blank elements in values
-	    for elem in other[:]:
-	    	if len(elem) <= 1:
-	    		other.remove(elem)
-	    
-	    #seperating CAPEC id's from sub-technique id's
-	    for elem in sub_technique[:]:
-	    	if "CAPEC" in elem:
-	    		capec.append(elem)
-	    		sub_technique.remove(elem)
-
-	    #initializing sub-technique id's
-	    if len(sub_technique) == 1:
-	    	other.insert(1, sub_technique[0])
-	    if len(sub_technique) > 1:
-	    	other.insert(1, sub_technique)
-
-	    #initializing capec id's
-	    if len(capec) == 1:
-	    	other.insert(idx, capec[0])
-	    if idx != 0 and len(capec) > 1: 
-	    	other.insert(idx, capec) 
-
-	    #initializing other attributes
-	    for i in range(len(key)):
-	    	dict1[key[i]] = other[i] 
-
+		TechniqueData['Detection'] = detection
+		TechniqueData['Description'] = description
+		if Mitigations:
+				TechniqueData['Mitigations'] = Mitigations
+		if ProcedureExamples:
+			TechniqueData['Procedure Examples'] = ProcedureExamples
+			
+			if not Mitigations:
+				TechniqueData['Mitigations']=response.xpath("//div[@class = 'container-fluid']/p[not(@scite-citeref-number)]/text()").extract()
 			
 
+		#remove leading and trailing spaces from technique name and remove unwanted symbols
+		techniqueName = "".join(techniqueName)
+		techniqueName = techniqueName.strip()
+		techniqueName = techniqueName.replace("\n", "")
+
+		#initializing technique name
+		TechniqueData['Technique Name'] = techniqueName
+
+		#formatting the keys. Removing trailing spaces and colon
+		for i in range(len(cardKeys)):
+			cardKeys[i] = cardKeys[i].strip()
+			cardKeys[i] = cardKeys[i][:-1]
+			if cardKeys[i] == 'CAPEC ID':
+				idx = i
+
+		#formatting the values.Removing unwanted elements
+		for i in range(len(cardValues)):
+			cardValues[i] = cardValues[i].strip()
+			if "\n" in cardValues[i]:
+				cardValues.remove(cardValues[i])
+
+		#eliminating blank elements in values
+		for elem in cardValues[:]:
+			if len(elem) <= 1:
+				cardValues.remove(elem)
+
+		#seperating CAPEC id's from sub-technique id's
+		for elem in subTechnique[:]:
+			if "CAPEC" in elem:
+				capec.append(elem)
+				subTechnique.remove(elem)
+
+		#initializing sub-technique id's
+		if len(subTechnique) == 1:
+			cardValues.insert(1, subTechnique[0])
+		if len(subTechnique) > 1:
+			cardValues.insert(1, subTechnique)
+
+		#initializing capec id's
+		if len(capec) == 1:
+			cardValues.insert(idx, capec[0])
+		if idx != 0 and len(capec) > 1: 
+			cardValues.insert(idx, capec) 
+
+		#initializing other attributes
+		for i in range(len(cardKeys)):
+			TechniqueData[cardKeys[i]] = cardValues[i] 
+
+		#returning the created dictionary
+		yield MitreItem( **TechniqueData )
+
+
+
 	    #returning the created dictionary
-	    yield MitreItem( **dict1 )		
+		
