@@ -62,14 +62,9 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-#ITEM_PIPELINES = {
-#   'mitre.pipelines.MitrePipeline': 300,
-#}
-
 ITEM_PIPELINES = {
-    'scrapyelasticsearch.scrapyelasticsearch.ElasticSearchPipeline': 500
+   'mitre.pipelines.MitrePipeline': 300,
 }
-
 
 ELASTICSEARCH_SERVER = 'localhost' 
 ELASTICSEARCH_PORT = 9200 
