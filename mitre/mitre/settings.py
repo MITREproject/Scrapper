@@ -63,10 +63,13 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-   'mitre.pipelines.MitrePipeline': 300,
-   #'mitre.pipelines.ElasticSearchPipeline':300
+   # 'mitre.pipelines.MitrePipeline': 300,
+   'mitre.pipelines.ElasticSearchPipeline':300
 }
-
+ELASTICSEARCH_SERVER = "localhost"
+ELASTICSEARCH_PORT = 9200
+ELASTICSEARCH_INDEX = "mitre"
+ELASTICSEARCH_TYPE = "tech_desc"
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
 #AUTOTHROTTLE_ENABLED = True
