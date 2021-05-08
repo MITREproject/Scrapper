@@ -59,7 +59,7 @@ class MetricsSpider(scrapy.Spider):
 		techniqueName = "".join(techniqueName).strip().replace("\n", "")
 
 		#initializing technique name
-		TechniqueData['Technique Name'] = techniqueName
+		TechniqueData['TechniqueName'] = techniqueName
 
 		#formatting the keys. Removing trailing spaces and colon
 		for i in range(len(cardKeys)):
@@ -99,6 +99,7 @@ class MetricsSpider(scrapy.Spider):
 
 		#initializing other attributes
 		for i in range(len(cardKeys)):
+			cardKeys[i]=''.join(e for e in cardKeys[i] if e.isalnum())
 			TechniqueData[cardKeys[i]] = cardValues[i] 
 
 		#returning the created dictionary
