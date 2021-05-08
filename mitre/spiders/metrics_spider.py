@@ -17,7 +17,7 @@ class MetricsSpider(scrapy.Spider):
 
 	def parse_dir_contents(self, response):
 
-		cardValues = response.xpath("//div[@class = 'card-data']/text()").extract() #holds values of card details
+		cardValues = response.xpath("//div[@class = 'col-md-11 pl-0']/text()").extract() #holds values of card details
 		cardKeys = response.xpath("//span[@class = 'h5 card-title']/text()").extract() #holds keys of card details
 		subTechnique = response.xpath("//div[@class = 'card-data']//a/text()").extract() #holds sub-technique id's and CAPEC id's
 		techniqueName = response.css('h1::text').extract() #holds technique names
@@ -41,25 +41,26 @@ class MetricsSpider(scrapy.Spider):
 				keys = row.xpath('td/a/text()')[0].extract()
 				values = row.xpath("td/p/text()" + "|" + "td/p/a/text()").extract()
 				values = "".join(values)
+				keys=''.join(e for e in keys if e.isalnum())
 				if type == "Name":
-					ProcedureExamples[keys.strip()] = values
+					ProcedureExamples[keys.strip().lower()] = values
 				elif type == "Mitigation":
-					Mitigations[keys.strip()] = values
+					Mitigations[keys.strip().lower()] = values
 
-		TechniqueData['Detection'] = detection
-		TechniqueData['Description'] = description
+		TechniqueData['detection'] = detection
+		TechniqueData['description'] = description
 		if Mitigations:
-			TechniqueData['Mitigations'] = Mitigations
+			TechniqueData['mitigations'] = Mitigations
 		if ProcedureExamples:
-			TechniqueData['Procedure Examples'] = ProcedureExamples
+			TechniqueData['procedureexamples'] = ProcedureExamples
 			if not Mitigations:
-				TechniqueData['Mitigations']=response.xpath("//div[@class = 'container-fluid']/p[not(@scite-citeref-number)]/text()").extract()
+				TechniqueData['mitigations']=response.xpath("//div[@class = 'container-fluid']/p[not(@scite-citeref-number)]/text()").extract()
 
 		#remove leading and trailing spaces from technique name and remove unwanted symbols
 		techniqueName = "".join(techniqueName).strip().replace("\n", "")
 
 		#initializing technique name
-		TechniqueData['TechniqueName'] = techniqueName
+		TechniqueData['techniquename'] = techniqueName
 
 		#formatting the keys. Removing trailing spaces and colon
 		for i in range(len(cardKeys)):
@@ -96,11 +97,12 @@ class MetricsSpider(scrapy.Spider):
 			cardValues.insert(idx, capec[0])
 		if idx != 0 and len(capec) > 1: 
 			cardValues.insert(idx, capec) 
-
+		
 		#initializing other attributes
 		for i in range(len(cardKeys)):
+			
 			cardKeys[i]=''.join(e for e in cardKeys[i] if e.isalnum())
-			TechniqueData[cardKeys[i]] = cardValues[i] 
+			TechniqueData[cardKeys[i].lower()] = cardValues[i] 
 
 		#returning the created dictionary
 		yield MitreItem( **TechniqueData )
