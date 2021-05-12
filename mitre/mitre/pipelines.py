@@ -5,39 +5,21 @@
 
 
 # useful for handling different item types with a single interface
-from itemadapter import ItemAdapter
-from pyes import *
+from itemadapter import ItemAdapter   
+#from pyes import ES
+import json
+import os
 
-import pymongo
+class JsonWriterPipeline:
 
-import json   
+    def open_spider(self, spider):
+        self.file = open('MitreData.json', 'w')
 
-class MitrePipeline:
+    def close_spider(self, spider):
+        self.file.close()
+
     def process_item(self, item, spider):
+        line = json.dumps(ItemAdapter(item).asdict()) + "\n"
+        self.file.write(line)
         return item
-
-# class MitrePipeline:
-# 	def __init__(self):
-# 		self.conn = pymongo.MongoClient(
-# 			'localhost',
-# 			27017
-# 		)
-# 		db = self.conn['mitre_project']
-# 		self.collection = db['tactics']
-
-# 	def process_item(self, item, spider):
-# 		self.collection.insert(dict(item))
-# 		return item
-
-# class ElasticSearchPipeline:	
-# 	def process_item(self, item, spider):
-# 		conn = ES('localhost:9200')
-# 		data = {
-# 			"name" : "Prajakta",
-# 			"roll" : 31
-# 		}  
-# 		conn.create_index("mitre_project")
-# 		conn.put_mapping("tactics", {'properties':item}, ["mitre_project"])
-# 		conn.index(item, "mitre_project", "tactics", 1)
-# 		return item
 

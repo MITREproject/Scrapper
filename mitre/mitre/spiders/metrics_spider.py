@@ -4,19 +4,20 @@ import string
 from ..items import MitreItem
 
 class MetricsSpider(scrapy.Spider):
-	name = 'metrics'  #name of the spider
+	name = 'metrics2'  #name of the spider
 	start_urls = [
-		'https://attack.mitre.org'  #url which we want to scrap
+		'https://attack.mitre.org/techniques/T1543/'  #url which we want to scrap
+		#'https://attack.mitre.org'
 	]
 
 	def parse(self, response):
-		url = response.css('table.techniques-table a::attr(href)').extract()
-		for item in url:
-			yield response.follow(item, callback = self.parse_dir_contents)
+	# 	url = response.css('table.techniques-table a::attr(href)').extract()
+	# 	for item in url:
+	# 		yield response.follow(item, callback = self.parse_dir_contents)
 
-	def parse_dir_contents(self, response):
+	# def parse_dir_contents(self, response):
 
-		cardValues = response.xpath("//div[@class = 'card-data']/text()").extract() #holds values of card details
+		cardValues = response.xpath("//div[@class = 'col-md-11 pl-0']/text()").extract() #holds values of card details
 		cardKeys = response.xpath("//span[@class = 'h5 card-title']/text()").extract() #holds keys of card details
 		subTechnique = response.xpath("//div[@class = 'card-data']//a/text()").extract() #holds sub-technique id's and CAPEC id's
 		techniqueName = response.css('h1::text').extract() #holds technique names
@@ -48,18 +49,12 @@ class MetricsSpider(scrapy.Spider):
 		TechniqueData['Detection'] = detection
 		TechniqueData['Description'] = description
 		if Mitigations:
-				TechniqueData['Mitigations'] = Mitigations
+			TechniqueData['Mitigations'] = Mitigations
 		if ProcedureExamples:
 			TechniqueData['Procedure Examples'] = ProcedureExamples
-			
-			if not Mitigations:
-				TechniqueData['Mitigations']=response.xpath("//div[@class = 'container-fluid']/p[not(@scite-citeref-number)]/text()").extract()
-			
 
 		#remove leading and trailing spaces from technique name and remove unwanted symbols
-		techniqueName = "".join(techniqueName)
-		techniqueName = techniqueName.strip()
-		techniqueName = techniqueName.replace("\n", "")
+		techniqueName = "".join(techniqueName).strip().replace("\n", "")
 
 		#initializing technique name
 		TechniqueData['Technique Name'] = techniqueName
@@ -109,5 +104,5 @@ class MetricsSpider(scrapy.Spider):
 
 
 
-	    #returning the created dictionary
+
 		
